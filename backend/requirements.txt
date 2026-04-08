@@ -1,0 +1,16 @@
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+langgraph==1.1.6
+langchain==0.3.0
+langchain-core==0.3.0
+pydantic==2.10.0
+pydantic-settings==2.6.0
+supabase==2.8.0
+elevenlabs==2.42.0
+celery==5.4.0
+redis==5.0.0
+xai-grok
+tweepy==4.14.0
+httpx==0.27.0
+python-dotenv==1.0.0
+python-multipart==0.0.9
