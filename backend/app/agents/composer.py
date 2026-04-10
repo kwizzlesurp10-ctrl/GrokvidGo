@@ -1,10 +1,13 @@
 import asyncio
+import logging
 import subprocess
 import tempfile
 import urllib.request
 
 from app.db import upsert_job, get_supabase
 from app.models import ContentState
+
+logger = logging.getLogger(__name__)
 
 
 def composer(state: ContentState) -> ContentState:
@@ -45,6 +48,7 @@ def composer(state: ContentState) -> ContentState:
 
         state = state.model_copy(update={"final_video_url": final_url})
     except Exception as exc:
+        logger.error("composer failed for job %s: %s", state.job_id, exc)
         state = state.model_copy(update={"status": "failed"})
 
     asyncio.run(upsert_job(state))

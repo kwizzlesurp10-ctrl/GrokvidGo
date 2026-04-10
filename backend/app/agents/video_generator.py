@@ -1,10 +1,13 @@
 import asyncio
+import logging
 import os
 
 from xai_grok import GrokClient
 
 from app.db import upsert_job, get_supabase
 from app.models import ContentState
+
+logger = logging.getLogger(__name__)
 
 
 def video_generator(state: ContentState) -> ContentState:
@@ -29,6 +32,7 @@ def video_generator(state: ContentState) -> ContentState:
 
         state = state.model_copy(update={"video_url": video_url})
     except Exception as exc:
+        logger.error("video_generator failed for job %s: %s", state.job_id, exc)
         state = state.model_copy(update={"status": "failed"})
 
     asyncio.run(upsert_job(state))
