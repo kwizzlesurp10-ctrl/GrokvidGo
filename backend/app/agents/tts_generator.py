@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 
 from elevenlabs import ElevenLabs
@@ -6,6 +7,8 @@ from elevenlabs.types import VoiceSettings
 
 from app.db import upsert_job, get_supabase
 from app.models import ContentState
+
+logger = logging.getLogger(__name__)
 
 VOICE_ID = "JBFqnCBsd6RMkjVDRTP6"  # Adam — swap as needed
 
@@ -34,6 +37,7 @@ def tts_generator(state: ContentState) -> ContentState:
 
         state = state.model_copy(update={"audio_url": audio_url})
     except Exception as exc:
+        logger.error("tts_generator failed for job %s: %s", state.job_id, exc)
         state = state.model_copy(update={"status": "failed"})
 
     asyncio.run(upsert_job(state))

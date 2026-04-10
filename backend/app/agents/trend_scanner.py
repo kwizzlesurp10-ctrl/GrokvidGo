@@ -1,9 +1,13 @@
+import asyncio
+import logging
 import os
 
 from xai_grok import GrokClient
 
 from app.db import upsert_job
 from app.models import ContentState
+
+logger = logging.getLogger(__name__)
 
 
 def trend_scanner(state: ContentState) -> ContentState:
@@ -13,8 +17,8 @@ def trend_scanner(state: ContentState) -> ContentState:
         trends = grok.trends_real_time()
         state = state.model_copy(update={"trend": trends[0], "status": "running"})
     except Exception as exc:
+        logger.error("trend_scanner failed for job %s: %s", state.job_id, exc)
         state = state.model_copy(update={"status": "failed", "trend": {"error": str(exc)}})
 
-    import asyncio
     asyncio.run(upsert_job(state))
     return state

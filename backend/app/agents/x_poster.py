@@ -1,11 +1,15 @@
 import asyncio
+import logging
 import os
+import tempfile
 import urllib.request
 
 import tweepy
 
 from app.db import upsert_job
 from app.models import ContentState
+
+logger = logging.getLogger(__name__)
 
 
 def _get_client() -> tweepy.Client:
@@ -37,7 +41,6 @@ def x_poster(state: ContentState) -> ContentState:
         client = _get_client()
 
         # Download final video to temp file for upload
-        import tempfile
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
             urllib.request.urlretrieve(state.final_video_url, tmp.name)
             media = api_v1.media_upload(tmp.name, media_category="tweet_video")
@@ -48,6 +51,7 @@ def x_poster(state: ContentState) -> ContentState:
 
         state = state.model_copy(update={"x_post_id": post_id, "status": "posted"})
     except Exception as exc:
+        logger.error("x_poster failed for job %s: %s", state.job_id, exc)
         state = state.model_copy(update={"status": "failed"})
 
     asyncio.run(upsert_job(state))
