@@ -1,12 +1,11 @@
 import asyncio
+import logging
 import os
 
 from xai_grok import GrokClient
 
 from app.db import upsert_job
 from app.models import ContentState
-
-import logging
 
 logger = logging.getLogger(__name__)
 
